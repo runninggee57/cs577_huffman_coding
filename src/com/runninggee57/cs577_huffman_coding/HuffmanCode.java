@@ -15,6 +15,7 @@ public class HuffmanCode {
   public HashMap<String, Integer> vocabulary;
   File speechDir = new File("speechdata");
   ArrayList<String> files;
+  double totalWordCount;
   
   public HuffmanCode(int numSpeeches, AGE age) {
     // Generate array of speech files
@@ -49,6 +50,11 @@ public class HuffmanCode {
         next = wi.next();
       }
       System.out.println(i + " of " + files.size() + " files read");
+    }
+    
+    // get total word count
+    for (Integer i : vocabulary.values()) {
+      totalWordCount += i;
     }
   }
   
