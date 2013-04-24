@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.PriorityQueue;
 
 public class HuffmanCode {
   public enum AGE {
@@ -13,7 +14,7 @@ public class HuffmanCode {
   }
 
   public HashMap<String, Integer> vocabulary;
-  public HashMap<String, Integer>[] fileWordCounts;
+  HashMap<String, String> coding = new HashMap<String, String>();
   File speechDir = new File("speechdata");
   ArrayList<String> files;
   double totalWordCount;
@@ -48,16 +49,37 @@ public class HuffmanCode {
           // then we want to increment the count since this is a speech we are encoding with
           vocabulary.put(next, num + 1);
         }
-        num = fileWordCounts[i].get(next);
-        if (num == null) {
-          fileWordCounts[i].put(next, 1);
-        }
-        else {
-          fileWordCounts[i].put(next, num + 1);
-        }
         next = wi.next();
       }
       System.out.println(i + " of " + files.size() + " files read");
+    }
+    
+    // create the encoding
+    // make the priority queue with the entire vocabulary
+    PriorityQueue<encodingNode> queue = new PriorityQueue<encodingNode>();
+    for (String s : vocabulary.keySet()) {
+      queue.add(new encodingNode(vocabulary.get(s), s));
+    }
+    
+    encodingNode root = null;
+    while (!queue.isEmpty()) {
+      encodingNode left = queue.poll();
+      encodingNode right = queue.poll();
+      root = new encodingNode(left.count + right.count, null, left, right);
+      queue.add(root);
+    }
+    
+    createCoding(root, "");
+  }
+  
+  private void createCoding(encodingNode n, String curSymbol) {
+    if (n.left != null && n.right != null) { // never a case where one is null and other isn't
+      createCoding(n.left, curSymbol + '0');
+      createCoding(n.right, curSymbol + '1');
+    }
+    else {
+      // at leaf
+      coding.put(n.word, curSymbol);
     }
   }
   
@@ -72,5 +94,37 @@ public class HuffmanCode {
       // reverse order
       return -1 * s1.compareTo(s2);
     }
+  }
+  
+  private class encodingNode implements Comparable<encodingNode> {
+    public int count;
+    public String word;
+    public encodingNode left;
+    public encodingNode right;
+    
+    encodingNode(int count, String word) {
+      this.left = null;
+      this.right = null;
+      this.count = count;
+      this.word = word;
+    }
+    
+    encodingNode(int count, String word, encodingNode left, encodingNode right) {
+      this.left = left;
+      this.right = right;
+      this.count = count;
+      this.word = word;
+    }
+    
+    @Override
+    public int compareTo(encodingNode arg0) {
+      if (count < arg0.count)
+        return -1;
+      else if (count == arg0.count)
+        return 0;
+      else
+        return 1;
+    }
+    
   }
 }
