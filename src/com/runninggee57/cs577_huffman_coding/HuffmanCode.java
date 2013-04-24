@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 public class HuffmanCode {
   public enum AGE {
@@ -17,6 +19,7 @@ public class HuffmanCode {
 
   public HashMap<String, Integer> vocabulary;
   public HashMap<String, String> coding = new HashMap<String, String>();
+  HashMap<String, Set<String>> speechWords = new HashMap<String, Set<String>>();
   File speechDir = new File("speechdata");
   ArrayList<String> files;
   double totalWordCount;
@@ -40,6 +43,7 @@ public class HuffmanCode {
     // generate word counts
     vocabulary = new HashMap<String, Integer>();
     for (int i = 0; i < files.size(); i++) {
+      HashSet<String> words = new HashSet<String>();
       WordIterator wi = new WordIterator("speechdata/" + files.get(i));
       String next = wi.next();
       while (next != "") {
@@ -51,9 +55,10 @@ public class HuffmanCode {
           // then we want to increment the count since this is a speech we are encoding with
           vocabulary.put(next, num + 1);
         }
+        words.add(next);
         next = wi.next();
       }
-      System.out.println(i + " of " + files.size() + " files read");
+      speechWords.put(files.get(i), words);
       wi.close();
       System.out.println((i + 1) + " of " + files.size() + " files read");
     }
@@ -75,19 +80,26 @@ public class HuffmanCode {
   }
   
   public void encodeAllFiles(BufferedWriter bw) {
+    java.util.Collections.sort(files, new oldToNew());
     for (int i = 0; i < files.size(); i++) {
+      int num_words = 0;
       String encoding = "";
       WordIterator wi = new WordIterator("speechdata/" + files.get(i));
       String next = wi.next();
       while (next != "") {
         encoding += coding.get(next);
         next = wi.next();
+        num_words++;
       }
       wi.close();
+      int num_symbols = speechWords.get(files.get(i)).size();
+      double bits_per_block = java.lang.Math.ceil(java.lang.Math.log(num_symbols) / java.lang.Math.log(2));
+      double compression = (double)encoding.length() / (num_words * bits_per_block);
       
       try {
         bw.write(files.get(i) + " encoding:\n");
         bw.write(encoding + "\n");
+        bw.write("compression: " + compression + "\n");
       }
       catch(IOException e) {
         System.out.println(e);
