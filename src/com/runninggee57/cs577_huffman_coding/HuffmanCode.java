@@ -19,9 +19,7 @@ public class HuffmanCode {
 
   public HashMap<String, Integer> vocabulary;
   public HashMap<String, String> coding = new HashMap<String, String>();
-  HashMap<String, Set<String>> speechWords = new HashMap<String, Set<String>>();
-  public HashMap<String, String> speechEncodings = new HashMap<String, String>();
-  public HashMap<String, Double> speechCompressions = new HashMap<String, Double>();
+  public HashMap<String, FileData> speechData = new HashMap<String, FileData>();
   File speechDir = new File("speechdata");
   ArrayList<String> files;
   double totalWordCount;
@@ -61,7 +59,9 @@ public class HuffmanCode {
         words.add(next);
         next = wi.next();
       }
-      speechWords.put(files.get(i), words);
+      FileData fd = new FileData(files.get(i));
+      fd.words = words;
+      speechData.put(files.get(i), fd);
       wi.close();
       System.out.println((i + 1) + " of " + files.size() + " files read");
     }
@@ -89,6 +89,7 @@ public class HuffmanCode {
     System.out.println("Encoding files...");
     for (int i = 0; i < files.size(); i++) {
       String filename = files.get(i);
+      FileData fd = speechData.get(filename);
       int num_words = 0;
       String encoding = "";
       WordIterator wi = new WordIterator("speechdata/" + filename);
@@ -99,14 +100,14 @@ public class HuffmanCode {
         num_words++;
       }
       wi.close();
-      speechEncodings.put(filename, encoding);
       
       // compute compression
-      int num_symbols = speechWords.get(filename).size();
+      int num_symbols = fd.words.size();
       double bits_per_block = java.lang.Math.ceil(java.lang.Math.log(num_symbols) / java.lang.Math.log(2));
       double compression = (double)encoding.length() / (num_words * bits_per_block);
-      speechCompressions.put(filename, compression);
+      fd.compression = compression;
       
+      speechData.put(filename, fd);
       System.out.println((i + 1) + " of " + files.size() + " files encoded");
       
     }
@@ -124,29 +125,13 @@ public class HuffmanCode {
     }
   }
   
-  public void writeFileEncodings(BufferedWriter bw) {
-    System.out.println("Writing file encodings...");
-    java.util.Collections.sort(files, new oldToNew());
-    
-    for (String filename : files) {
-      try {
-        bw.write(filename.substring(0, 10) + "," + speechEncodings.get(filename) + ";\n");
-      }
-      catch(IOException e) {
-        System.out.println(e);
-        return;
-      }
-    }
-    System.out.println("Encodings written");
-  }
-  
   public void writeFileCompressions(BufferedWriter bw) {
     System.out.println("Writing file compressions...");
     java.util.Collections.sort(files, new oldToNew());
     
     for (String filename : files) {
       try {
-        bw.write(filename.substring(0, 10) + "," + speechCompressions.get(filename) + ";\n");
+        bw.write(filename.substring(0, 4) + "-" + filename.substring(4,6) + "-" + filename.substring(6,8) + "," + speechData.get(filename).compression + ";\n");
       }
       catch(IOException e) {
         System.out.println(e);
@@ -204,20 +189,17 @@ public class HuffmanCode {
   private class FileData {
     public String filename;
     public HashSet<String> words;
-    public String encoding;
     public double compression;
     
     FileData(String filename) {
       this.filename = filename;
       words = new HashSet<String>();
-      encoding = "";
       compression = 0;
     }
     
     FileData(FileData f) {
       this.filename = f.filename;
       this.words = f.words;
-      this.encoding = f.encoding;
       this.compression = f.compression;
     }
   }

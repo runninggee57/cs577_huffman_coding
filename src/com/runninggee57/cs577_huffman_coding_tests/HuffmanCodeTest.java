@@ -33,11 +33,7 @@ public class HuffmanCodeTest {
     try {
       hc.encodeAllFiles();
       
-      BufferedWriter bw = new BufferedWriter(new FileWriter("speech_encodings.csv"));
-      hc.writeFileEncodings(bw);
-      bw.close();
-      
-      bw = new BufferedWriter(new FileWriter("speech_compressions.csv"));
+      BufferedWriter bw = new BufferedWriter(new FileWriter("speech_compressions.csv"));
       hc.writeFileCompressions(bw);
       bw.close();
     }
