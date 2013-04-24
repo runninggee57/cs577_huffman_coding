@@ -31,8 +31,14 @@ public class HuffmanCodeTest {
   public void testEncodeAllFiles() {
     HuffmanCode hc = new HuffmanCode(1, HuffmanCode.AGE.NEWEST);
     try {
-      BufferedWriter bw = new BufferedWriter(new FileWriter("file_encodings.txt"));
-      hc.encodeAllFiles(bw);
+      hc.encodeAllFiles();
+      
+      BufferedWriter bw = new BufferedWriter(new FileWriter("speech_encodings.csv"));
+      hc.writeFileEncodings(bw);
+      bw.close();
+      
+      bw = new BufferedWriter(new FileWriter("speech_compressions.csv"));
+      hc.writeFileCompressions(bw);
       bw.close();
     }
     catch (IOException e) {

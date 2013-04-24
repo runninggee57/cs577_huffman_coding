@@ -20,6 +20,8 @@ public class HuffmanCode {
   public HashMap<String, Integer> vocabulary;
   public HashMap<String, String> coding = new HashMap<String, String>();
   HashMap<String, Set<String>> speechWords = new HashMap<String, Set<String>>();
+  public HashMap<String, String> speechEncodings = new HashMap<String, String>();
+  public HashMap<String, Double> speechCompressions = new HashMap<String, Double>();
   File speechDir = new File("speechdata");
   ArrayList<String> files;
   double totalWordCount;
@@ -40,6 +42,7 @@ public class HuffmanCode {
       break;
     }
     
+    System.out.println("Generating word counts...");
     // generate word counts
     vocabulary = new HashMap<String, Integer>();
     for (int i = 0; i < files.size(); i++) {
@@ -63,6 +66,7 @@ public class HuffmanCode {
       System.out.println((i + 1) + " of " + files.size() + " files read");
     }
     
+    System.out.println("Generating Huffman Code tree...");
     // create the encoding
     // make the priority queue with the entire vocabulary
     PriorityQueue<encodingNode> queue = new PriorityQueue<encodingNode>();
@@ -76,15 +80,18 @@ public class HuffmanCode {
       queue.add(new encodingNode(left.count + right.count, null, left, right));
     }
     encodingNode root = queue.poll();
+    
+    System.out.println("Generating code table...");
     createCoding(root, "");
   }
   
-  public void encodeAllFiles(BufferedWriter bw) {
-    java.util.Collections.sort(files, new oldToNew());
+  public void encodeAllFiles() {
+    System.out.println("Encoding files...");
     for (int i = 0; i < files.size(); i++) {
+      String filename = files.get(i);
       int num_words = 0;
       String encoding = "";
-      WordIterator wi = new WordIterator("speechdata/" + files.get(i));
+      WordIterator wi = new WordIterator("speechdata/" + filename);
       String next = wi.next();
       while (next != "") {
         encoding += coding.get(next);
@@ -92,21 +99,18 @@ public class HuffmanCode {
         num_words++;
       }
       wi.close();
-      int num_symbols = speechWords.get(files.get(i)).size();
+      speechEncodings.put(filename, encoding);
+      
+      // compute compression
+      int num_symbols = speechWords.get(filename).size();
       double bits_per_block = java.lang.Math.ceil(java.lang.Math.log(num_symbols) / java.lang.Math.log(2));
       double compression = (double)encoding.length() / (num_words * bits_per_block);
+      speechCompressions.put(filename, compression);
       
-      try {
-        bw.write(files.get(i) + " encoding:\n");
-        bw.write(encoding + "\n");
-        bw.write("compression: " + compression + "\n");
-      }
-      catch(IOException e) {
-        System.out.println(e);
-        return;
-      }
       System.out.println((i + 1) + " of " + files.size() + " files encoded");
+      
     }
+    System.out.println("Files encoded.");
   }
   
   private void createCoding(encodingNode n, String curSymbol) {
@@ -118,6 +122,38 @@ public class HuffmanCode {
       // at leaf
       coding.put(n.word, curSymbol);
     }
+  }
+  
+  public void writeFileEncodings(BufferedWriter bw) {
+    System.out.println("Writing file encodings...");
+    java.util.Collections.sort(files, new oldToNew());
+    
+    for (String filename : files) {
+      try {
+        bw.write(filename.substring(0, 10) + "," + speechEncodings.get(filename) + ";\n");
+      }
+      catch(IOException e) {
+        System.out.println(e);
+        return;
+      }
+    }
+    System.out.println("Encodings written");
+  }
+  
+  public void writeFileCompressions(BufferedWriter bw) {
+    System.out.println("Writing file compressions...");
+    java.util.Collections.sort(files, new oldToNew());
+    
+    for (String filename : files) {
+      try {
+        bw.write(filename.substring(0, 10) + "," + speechCompressions.get(filename) + ";\n");
+      }
+      catch(IOException e) {
+        System.out.println(e);
+        return;
+      }
+    }
+    System.out.println("Compressions written.");
   }
   
   private class oldToNew implements Comparator<String> {
@@ -163,5 +199,26 @@ public class HuffmanCode {
         return 1;
     }
     
+  }
+  
+  private class FileData {
+    public String filename;
+    public HashSet<String> words;
+    public String encoding;
+    public double compression;
+    
+    FileData(String filename) {
+      this.filename = filename;
+      words = new HashSet<String>();
+      encoding = "";
+      compression = 0;
+    }
+    
+    FileData(FileData f) {
+      this.filename = f.filename;
+      this.words = f.words;
+      this.encoding = f.encoding;
+      this.compression = f.compression;
+    }
   }
 }
