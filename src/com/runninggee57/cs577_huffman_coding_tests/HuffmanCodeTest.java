@@ -1,6 +1,9 @@
 package com.runninggee57.cs577_huffman_coding_tests;
 
 import static org.junit.Assert.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Set;
 import org.junit.Test;
 import com.runninggee57.cs577_huffman_coding.HuffmanCode;
@@ -12,8 +15,15 @@ public class HuffmanCodeTest {
     HuffmanCode hc = new HuffmanCode(1000, HuffmanCode.AGE.OLDEST);
     
     Set<String> set = hc.vocabulary.keySet();
-    for (String s : set) {
-      System.out.println("Word: " + s + " - " + hc.vocabulary.get(s));
+    try {
+      BufferedWriter bw = new BufferedWriter(new FileWriter("vocabulary.txt"));
+      for (String s : set) {
+        bw.write("Word: " + s + " - " + hc.vocabulary.get(s) + " - " + hc.coding.get(s) + "\n");
+      }
+      bw.close();
+    }
+    catch (IOException e) {
+      System.out.println(e);
     }
   }
 

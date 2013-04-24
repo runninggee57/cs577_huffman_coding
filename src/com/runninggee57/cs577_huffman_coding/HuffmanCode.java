@@ -14,7 +14,7 @@ public class HuffmanCode {
   }
 
   public HashMap<String, Integer> vocabulary;
-  HashMap<String, String> coding = new HashMap<String, String>();
+  public HashMap<String, String> coding = new HashMap<String, String>();
   File speechDir = new File("speechdata");
   ArrayList<String> files;
   double totalWordCount;
@@ -61,14 +61,12 @@ public class HuffmanCode {
       queue.add(new encodingNode(vocabulary.get(s), s));
     }
     
-    encodingNode root = null;
-    while (!queue.isEmpty()) {
+    while (queue.size() > 1) {
       encodingNode left = queue.poll();
       encodingNode right = queue.poll();
-      root = new encodingNode(left.count + right.count, null, left, right);
-      queue.add(root);
+      queue.add(new encodingNode(left.count + right.count, null, left, right));
     }
-    
+    encodingNode root = queue.poll();
     createCoding(root, "");
   }
   
