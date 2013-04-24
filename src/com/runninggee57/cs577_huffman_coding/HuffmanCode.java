@@ -54,6 +54,8 @@ public class HuffmanCode {
         next = wi.next();
       }
       System.out.println(i + " of " + files.size() + " files read");
+      wi.close();
+      System.out.println((i + 1) + " of " + files.size() + " files read");
     }
     
     // create the encoding
@@ -81,6 +83,7 @@ public class HuffmanCode {
         encoding += coding.get(next);
         next = wi.next();
       }
+      wi.close();
       
       try {
         bw.write(files.get(i) + " encoding:\n");
@@ -90,6 +93,7 @@ public class HuffmanCode {
         System.out.println(e);
         return;
       }
+      System.out.println((i + 1) + " of " + files.size() + " files encoded");
     }
   }
   

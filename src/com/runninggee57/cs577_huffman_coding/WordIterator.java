@@ -49,4 +49,14 @@ public class WordIterator {
     getNextWord();
     return ret;
   }
+  
+  public void close() {
+    try {
+      br.close();
+    }
+    catch (IOException e) {
+      System.out.println("There was an IO problem when closing file '" + filename + "'");
+      return;
+    }
+  }
 }

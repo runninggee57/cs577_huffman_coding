@@ -14,6 +14,8 @@ public class WordIteratorTest {
       System.out.println("Next word: " + word);
       word = wi.next();
     }
+    
+    wi.close();
   }
 
 }
