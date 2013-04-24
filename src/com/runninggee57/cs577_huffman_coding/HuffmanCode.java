@@ -131,7 +131,7 @@ public class HuffmanCode {
     
     for (String filename : files) {
       try {
-        bw.write(filename.substring(0, 4) + "-" + filename.substring(4,6) + "-" + filename.substring(6,8) + "," + speechData.get(filename).compression + ";\n");
+        bw.write(filename.substring(5, 7) + "/" + filename.substring(8,10) + "/" + filename.substring(0,4) + "," + speechData.get(filename).compression + "\n");
       }
       catch(IOException e) {
         System.out.println(e);
