@@ -1,6 +1,8 @@
 package com.runninggee57.cs577_huffman_coding;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -68,6 +70,27 @@ public class HuffmanCode {
     }
     encodingNode root = queue.poll();
     createCoding(root, "");
+  }
+  
+  public void encodeAllFiles(BufferedWriter bw) {
+    for (int i = 0; i < files.size(); i++) {
+      String encoding = "";
+      WordIterator wi = new WordIterator("speechdata/" + files.get(i));
+      String next = wi.next();
+      while (next != "") {
+        encoding += coding.get(next);
+        next = wi.next();
+      }
+      
+      try {
+        bw.write(files.get(i) + " encoding:\n");
+        bw.write(encoding + "\n");
+      }
+      catch(IOException e) {
+        System.out.println(e);
+        return;
+      }
+    }
   }
   
   private void createCoding(encodingNode n, String curSymbol) {

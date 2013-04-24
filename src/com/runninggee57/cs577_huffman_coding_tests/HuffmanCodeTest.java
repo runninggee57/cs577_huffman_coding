@@ -26,5 +26,18 @@ public class HuffmanCodeTest {
       System.out.println(e);
     }
   }
+  
+  @Test
+  public void testEncodeAllFiles() {
+    HuffmanCode hc = new HuffmanCode(1, HuffmanCode.AGE.NEWEST);
+    try {
+      BufferedWriter bw = new BufferedWriter(new FileWriter("file_encodings.txt"));
+      hc.encodeAllFiles(bw);
+      bw.close();
+    }
+    catch (IOException e) {
+      System.out.println(e);
+    }
+  }
 
 }
