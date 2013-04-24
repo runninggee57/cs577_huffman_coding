@@ -13,6 +13,7 @@ public class HuffmanCode {
   }
 
   public HashMap<String, Integer> vocabulary;
+  public HashMap<String, Integer>[] fileWordCounts;
   File speechDir = new File("speechdata");
   ArrayList<String> files;
   double totalWordCount;
@@ -47,14 +48,16 @@ public class HuffmanCode {
           // then we want to increment the count since this is a speech we are encoding with
           vocabulary.put(next, num + 1);
         }
+        num = fileWordCounts[i].get(next);
+        if (num == null) {
+          fileWordCounts[i].put(next, 1);
+        }
+        else {
+          fileWordCounts[i].put(next, num + 1);
+        }
         next = wi.next();
       }
       System.out.println(i + " of " + files.size() + " files read");
-    }
-    
-    // get total word count
-    for (Integer i : vocabulary.values()) {
-      totalWordCount += i;
     }
   }
   
