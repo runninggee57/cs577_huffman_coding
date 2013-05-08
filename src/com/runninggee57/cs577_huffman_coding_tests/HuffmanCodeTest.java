@@ -12,13 +12,15 @@ public class HuffmanCodeTest {
 
   @Test
   public void testHuffmanCode() {
-    HuffmanCode hc = new HuffmanCode(1000, HuffmanCode.AGE.OLDEST);
+    HuffmanCode hc = new HuffmanCode();
     
-    Set<String> set = hc.vocabulary.keySet();
+    hc.create(1000, HuffmanCode.AGE.OLDEST);
+    
+    Set<String> set = hc.curVocabulary.keySet();
     try {
       BufferedWriter bw = new BufferedWriter(new FileWriter("vocabulary.txt"));
       for (String s : set) {
-        bw.write("Word: " + s + " - " + hc.vocabulary.get(s) + " - " + hc.coding.get(s) + "\n");
+        bw.write("Word: " + s + " - " + hc.curVocabulary.get(s) + " - " + hc.coding.get(s) + "\n");
       }
       bw.close();
     }
@@ -29,7 +31,8 @@ public class HuffmanCodeTest {
   
   @Test
   public void testEncodeAllFiles() {
-    HuffmanCode hc = new HuffmanCode(1, HuffmanCode.AGE.NEWEST);
+    HuffmanCode hc = new HuffmanCode();
+    hc.create(1, HuffmanCode.AGE.NEWEST);
     try {
       hc.encodeAllFiles();
       

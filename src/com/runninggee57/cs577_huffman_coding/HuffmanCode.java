@@ -17,20 +17,51 @@ public class HuffmanCode {
     OLDEST;
   }
 
-  public HashMap<String, Integer> vocabulary;
+  public HashMap<String, Integer> curVocabulary;
   public HashMap<String, String> coding = new HashMap<String, String>();
   public HashMap<String, FileData> speechData = new HashMap<String, FileData>();
   File speechDir = new File("speechdata");
   ArrayList<String> files;
   double totalWordCount;
   
-  public HuffmanCode(int numSpeeches, AGE age) {
+  public HuffmanCode() {
     // Generate array of speech files
     files = new ArrayList<String>(Arrays.asList(speechDir.list()));
     if (files == null) {
       System.out.println("Something went wrong getting list of files");
     }
     
+    generateWordCounts();
+  }
+  
+  private void generateWordCounts() {
+    System.out.println("Generating word counts...");
+    // generate word counts
+    for (int i = 0; i < files.size(); i++) {
+      FileData fd = new FileData(files.get(i));
+      HashMap<String, Integer> wordCounts = fd.wordCounts;
+      WordIterator wi = new WordIterator("speechdata/" + files.get(i));
+      String next = wi.next();
+      while (next != "") {
+        Integer num = wordCounts.get(next);
+        if (num == null) {
+          wordCounts.put(next, 1);
+        }
+        else {
+          // then we want to increment the count
+          wordCounts.put(next, num + 1);
+        }
+        next = wi.next();
+      }
+      speechData.put(files.get(i), fd);
+      wi.close();
+      System.out.println((i + 1) + " of " + files.size() + " files read");
+    }
+  }
+  
+  private void generateVocabulary(int numSpeeches, AGE age) {
+    curVocabulary = new HashMap<String, Integer>();
+    // sort files the right way
     switch (age) {
     case NEWEST:
       java.util.Collections.sort(files, new newToOld());
@@ -40,38 +71,42 @@ public class HuffmanCode {
       break;
     }
     
-    System.out.println("Generating word counts...");
-    // generate word counts
-    vocabulary = new HashMap<String, Integer>();
-    for (int i = 0; i < files.size(); i++) {
-      HashSet<String> words = new HashSet<String>();
-      WordIterator wi = new WordIterator("speechdata/" + files.get(i));
-      String next = wi.next();
-      while (next != "") {
-        Integer num = vocabulary.get(next);
-        if (num == null) {
-          vocabulary.put(next, 1);
+    int fileNum = 0;
+    for (String filename : files) {
+      HashMap<String, Integer> wordCounts = speechData.get(filename).wordCounts;
+      
+      if (fileNum < numSpeeches) {
+        // Want to add full counts to vocabulary count
+        for (String word : wordCounts.keySet()) {
+          Integer curNum = curVocabulary.get(word);
+          Integer newNum = wordCounts.get(word);
+          if (curNum == null)
+            curVocabulary.put(word, newNum);
+          else // add count
+            curVocabulary.put(word, curNum + newNum);
         }
-        else if (i < numSpeeches){
-          // then we want to increment the count since this is a speech we are encoding with
-          vocabulary.put(next, num + 1);
-        }
-        words.add(next);
-        next = wi.next();
       }
-      FileData fd = new FileData(files.get(i));
-      fd.words = words;
-      speechData.put(files.get(i), fd);
-      wi.close();
-      System.out.println((i + 1) + " of " + files.size() + " files read");
+      else {
+        // speech not used in encoding, just add one for each word
+        for (String word : wordCounts.keySet()) {
+          Integer curNum = curVocabulary.get(word);
+          // only add if the word doesn't exist yet in vocabulary
+          if (curNum == null)
+            curVocabulary.put(word, 1);
+        }
+      }
+      fileNum++;
     }
-    
+  }
+  
+  public void create(int numSpeeches, AGE age) {
+    generateVocabulary(numSpeeches, age);
     System.out.println("Generating Huffman Code tree...");
     // create the encoding
     // make the priority queue with the entire vocabulary
     PriorityQueue<encodingNode> queue = new PriorityQueue<encodingNode>();
-    for (String s : vocabulary.keySet()) {
-      queue.add(new encodingNode(vocabulary.get(s), s));
+    for (String s : curVocabulary.keySet()) {
+      queue.add(new encodingNode(curVocabulary.get(s), s));
     }
     
     while (queue.size() > 1) {
@@ -102,7 +137,7 @@ public class HuffmanCode {
       wi.close();
       
       // compute compression
-      int num_symbols = fd.words.size();
+      int num_symbols = fd.wordCounts.size();
       double bits_per_block = java.lang.Math.ceil(java.lang.Math.log(num_symbols) / java.lang.Math.log(2));
       double compression = (double)encoding.length() / (num_words * bits_per_block);
       fd.compression = compression;
@@ -188,18 +223,18 @@ public class HuffmanCode {
   
   private class FileData {
     public String filename;
-    public HashSet<String> words;
+    public HashMap<String, Integer> wordCounts;
     public double compression;
     
     FileData(String filename) {
       this.filename = filename;
-      words = new HashSet<String>();
+      wordCounts = new HashMap<String, Integer>();
       compression = 0;
     }
     
     FileData(FileData f) {
       this.filename = f.filename;
-      this.words = f.words;
+      this.wordCounts = f.wordCounts;
       this.compression = f.compression;
     }
   }

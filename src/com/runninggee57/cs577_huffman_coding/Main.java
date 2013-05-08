@@ -11,7 +11,8 @@ public class Main {
    */
   public static void main(String[] args) {
     // Encode with most recent speech
-    HuffmanCode hc = new HuffmanCode(1, HuffmanCode.AGE.NEWEST);
+    HuffmanCode hc = new HuffmanCode();
+    hc.create(1, HuffmanCode.AGE.NEWEST);
     try {
       hc.encodeAllFiles();
       
@@ -24,7 +25,7 @@ public class Main {
     }
     
     // Encode with 2 most recent speeches
-    hc = new HuffmanCode(2, HuffmanCode.AGE.NEWEST);
+    hc.create(2, HuffmanCode.AGE.NEWEST);
     try {
       hc.encodeAllFiles();
       
@@ -37,7 +38,7 @@ public class Main {
     }
     
     // Encode with 10 most recent speeches
-    hc = new HuffmanCode(10, HuffmanCode.AGE.NEWEST);
+    hc.create(10, HuffmanCode.AGE.NEWEST);
     try {
       hc.encodeAllFiles();
       
@@ -50,7 +51,7 @@ public class Main {
     }
     
     // Encode with 100 most recent speeches
-    hc = new HuffmanCode(100, HuffmanCode.AGE.NEWEST);
+    hc.create(100, HuffmanCode.AGE.NEWEST);
     try {
       hc.encodeAllFiles();
       
@@ -63,7 +64,7 @@ public class Main {
     }
     
     // Encode with 300 most recent speeches
-    hc = new HuffmanCode(300, HuffmanCode.AGE.NEWEST);
+    hc.create(300, HuffmanCode.AGE.NEWEST);
     try {
       hc.encodeAllFiles();
       
@@ -76,7 +77,7 @@ public class Main {
     }
     
     // Encode with 2 oldest speeches
-    hc = new HuffmanCode(2, HuffmanCode.AGE.OLDEST);
+    hc.create(2, HuffmanCode.AGE.OLDEST);
     try {
       hc.encodeAllFiles();
       
@@ -89,7 +90,7 @@ public class Main {
     }
     
     // Encode with 10 oldest speeches
-    hc = new HuffmanCode(10, HuffmanCode.AGE.OLDEST);
+    hc.create(10, HuffmanCode.AGE.OLDEST);
     try {
       hc.encodeAllFiles();
       
@@ -102,7 +103,7 @@ public class Main {
     }
     
     // Encode with 100 oldest speeches
-    hc = new HuffmanCode(100, HuffmanCode.AGE.OLDEST);
+    hc.create(100, HuffmanCode.AGE.OLDEST);
     try {
       hc.encodeAllFiles();
       
@@ -115,7 +116,7 @@ public class Main {
     }
     
     // Encode with 300 oldest speeches
-    hc = new HuffmanCode(300, HuffmanCode.AGE.OLDEST);
+    hc.create(300, HuffmanCode.AGE.OLDEST);
     try {
       hc.encodeAllFiles();
       
@@ -128,7 +129,7 @@ public class Main {
     }
     
     // Encode with all speeches
-    hc = new HuffmanCode(626, HuffmanCode.AGE.NEWEST);
+    hc.create(626, HuffmanCode.AGE.NEWEST);
     try {
       hc.encodeAllFiles();
       
